@@ -4,7 +4,7 @@
 class Lox {
   public:
     static void run(std::string_view source);
-    static void run_file(std::string_view path);
+    static int run_file(std::string_view path);
     static void run_prompt();
     static void error(std::size_t line, std::string_view message);
 
