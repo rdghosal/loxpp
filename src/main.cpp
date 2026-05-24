@@ -8,10 +8,10 @@ int main(int argc, char *argv[]) {
 
     switch (args.size()) {
     case 1:
-        lox::run_prompt();
+        Lox::run_prompt();
         break;
     case 2:
-        lox::run_file(args[1]);
+        Lox::run_file(args[1]);
         break;
     default:
         std::println(stderr, "Usage: lox++ [script]");

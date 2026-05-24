@@ -7,7 +7,8 @@ Checks: >
   readability-*,
   bugprone-*,
   -modernize-use-trailing-return-type,
-  -readability-identifier-length
+  -readability-identifier-length,
+  -readability-identifier-naming
 WarningsAsErrors: ""
 HeaderFilterRegex: "src/.*"
 CheckOptions:
@@ -19,3 +20,15 @@ CheckOptions:
     value: CamelCase
   - key: readability-identifier-naming.NamespaceCase
     value: lower_case
+  - key: readability-identifier-naming.MemberCase
+    value: lower_case
+  - key: readability-identifier-naming.MemberSuffix
+    value: _
+  - key: readability-identifier-naming.StaticMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.StaticMemberSuffix
+    value: _
+  - key: readability-identifier-naming.StaticVariableCase
+    value: lower_case
+  - key: readability-identifier-naming.StaticVariableSuffix
+    value: _

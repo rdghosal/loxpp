@@ -1,5 +1,6 @@
 add_library(loxpp_lib STATIC
   lox/lox.cpp
+  lox/scanner.cpp
 )
 target_include_directories(loxpp_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_options(loxpp_lib PRIVATE -Wall -Wextra -Wpedantic -Werror)
