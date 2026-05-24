@@ -19,4 +19,5 @@ class Scanner {
     char advance();
     void add_token(TokenType type);
     void add_token(TokenType type, Literal literal);
+    bool match(char expected);
 };

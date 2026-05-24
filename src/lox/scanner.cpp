@@ -5,72 +5,95 @@
 Scanner::Scanner(std::string_view src) : source_{src} {}
 
 std::vector<Token> Scanner::scan_tokens() {
-    while (!this->is_at_end()) {
-        this->start_ = this->current_;
-        this->scan_token();
+    while (!is_at_end()) {
+        start_ = current_;
+        scan_token();
     }
-    this->tokens_.emplace_back(Token{
+    tokens_.emplace_back(Token{
         .type = TokenType::EOF_,
         .lexeme = "",
         .literal = std::monostate{},
-        .line = this->line_,
+        .line = line_,
     });
-    return std::move(this->tokens_);
+    return std::move(tokens_);
 }
 
 void Scanner::scan_token() {
-    char c = this->advance();
+    char c = advance();
     switch (c) {
     case ')':
-        this->add_token(TokenType::LEFT_PAREN);
+        add_token(TokenType::LEFT_PAREN);
         break;
     case '(':
-        this->add_token(TokenType::RIGHT_PAREN);
+        add_token(TokenType::RIGHT_PAREN);
         break;
     case '{':
-        this->add_token(TokenType::LEFT_BRACE);
+        add_token(TokenType::LEFT_BRACE);
         break;
     case '}':
-        this->add_token(TokenType::RIGHT_BRACE);
+        add_token(TokenType::RIGHT_BRACE);
         break;
     case ',':
-        this->add_token(TokenType::COMMA);
+        add_token(TokenType::COMMA);
         break;
     case '-':
-        this->add_token(TokenType::MINUS);
+        add_token(TokenType::MINUS);
         break;
     case '+':
-        this->add_token(TokenType::PLUS);
+        add_token(TokenType::PLUS);
         break;
     case ';':
-        this->add_token(TokenType::SEMICOLON);
+        add_token(TokenType::SEMICOLON);
         break;
     case '*':
-        this->add_token(TokenType::STAR);
+        add_token(TokenType::STAR);
+        break;
+    case '!':
+        add_token(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG);
+        break;
+    case '=':
+        add_token(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL);
+        break;
+    case '<':
+        add_token(match('=') ? TokenType::LESS_EQUAL : TokenType::LESS);
+        break;
+    case '>':
+        add_token(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER);
         break;
     default:
-        Lox::error(this->line_, "Unexpected character.");
+        Lox::error(line_, "Unexpected character.");
         break;
     }
 }
 
 char Scanner::advance() {
-    return this->source_[this->current_++];
+    return source_[current_++];
 }
 
 void Scanner::add_token(TokenType type) {
-    this->add_token(type, std::monostate{});
+    add_token(type, std::monostate{});
+}
+
+bool Scanner::match(char expected) {
+    if (is_at_end()) {
+        return false;
+    }
+    if (source_.at(current_) != expected) {
+        return false;
+    }
+    current_++;
+    return true;
 }
 
 void Scanner::add_token(TokenType type, Literal literal) {
-    this->tokens_.emplace_back(Token{
+    tokens_.emplace_back(Token{
         .type = type,
-        .lexeme = this->source_.substr(this->start_, this->current_),
+        .lexeme = source_.substr(start_, current_),
         .literal = std::move(literal),
-        .line = this->line_,
+        .line = line_,
     });
 }
 
 bool Scanner::is_at_end() {
-    return this->current_ >= this->source_.size();
+    return current_ >= source_.size();
 }
