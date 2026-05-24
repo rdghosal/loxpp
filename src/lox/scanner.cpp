@@ -2,9 +2,9 @@
 #include "lox.hpp"
 #include <variant>
 
-Scanner::Scanner(std::string_view src) : source_{src}, start_{0}, current_{0}, line_{1} {}
+Scanner::Scanner(std::string_view src) : source_{src} {}
 
-std::vector<Token> &Scanner::scan_tokens() {
+std::vector<Token> Scanner::scan_tokens() {
     while (!this->is_at_end()) {
         this->start_ = this->current_;
         this->scan_token();
@@ -15,7 +15,7 @@ std::vector<Token> &Scanner::scan_tokens() {
         .literal = std::monostate{},
         .line = this->line_,
     });
-    return this->tokens_;
+    return std::move(this->tokens_);
 }
 
 void Scanner::scan_token() {

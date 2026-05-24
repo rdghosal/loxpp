@@ -1,10 +1,10 @@
+#include <cstdint>
 #include <string>
 #include <string_view>
 #include <variant>
+using Literal = std::variant<std::monostate, std::string, double, bool>;
 
-using Literal = std::variant<std::monostate, std ::string, double, bool>;
-
-enum class TokenType {
+enum class TokenType : std::uint8_t {
     // Single-character tokens
     LEFT_PAREN,
     RIGHT_PAREN,

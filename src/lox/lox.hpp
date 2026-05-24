@@ -1,6 +1,12 @@
 #pragma once
 #include <string_view>
 
+enum class ExitCode : int { // NOLINT
+    OK = 0,
+    IO_ERROR = 63,
+    RUNTIME_ERROR = 65,
+};
+
 class Lox {
   public:
     static void run(std::string_view source);

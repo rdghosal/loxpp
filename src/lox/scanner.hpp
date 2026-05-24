@@ -6,14 +6,14 @@
 class Scanner {
   public:
     Scanner(std::string_view src);
-    std::vector<Token> &scan_tokens();
+    std::vector<Token> scan_tokens();
 
   private:
     std::string_view source_;
     std::vector<Token> tokens_;
-    std::size_t start_;
-    std::size_t current_;
-    std::size_t line_;
+    std::size_t start_{0};
+    std::size_t current_{0};
+    std::size_t line_{1};
     bool is_at_end();
     void scan_token();
     char advance();

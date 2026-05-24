@@ -24,15 +24,15 @@ int Lox::run_file(std::string_view path) {
     std::ifstream file{std::string{path}};
     if (!file) {
         std::println(stderr, "could not open file: {}", path);
-        return 63; // FIXME: figure out code
+        return static_cast<int>(ExitCode::IO_ERROR);
     }
     std::ostringstream buf;
     buf << file.rdbuf();
     run(buf.str());
     if (had_error_) {
-        return 65;
+        return static_cast<int>(ExitCode::RUNTIME_ERROR);
     }
-    return 0;
+    return static_cast<int>(ExitCode::OK);
 }
 
 void Lox::error(std::size_t line, std::string_view message) {
