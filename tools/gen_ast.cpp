@@ -13,5 +13,10 @@ int main(int argc, char *argv[]) {
     std::string_view output_dir{args[1]};
     std::println("recieved {}", output_dir);
 
+    const std::vector<std::string_view> types = {
+        "Binary   : Expr left, Token operator, Expr right", "Grouping : Expr expression",
+        "Literal  : Object value", "Unary    : Token operator, Expr right"};
+    define_ast(output_dir, types, "Expr");
+
     return 0;
 }

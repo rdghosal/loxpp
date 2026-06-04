@@ -28,7 +28,7 @@ auto lower(std::string_view sv) -> std::string {
            std::ranges::to<std::string>();
 }
 
-void define_visitor(std::ofstream &file, std::string_view base_name, std::string_view cls_name,
+void define_visitor(std::ofstream &file, std::string_view base_name,
                     const std::vector<std::string_view> &types) {
     std::println(file, "template <typename T> class Visitor {{");
     for (const auto &t : types) {
@@ -36,8 +36,8 @@ void define_visitor(std::ofstream &file, std::string_view base_name, std::string
         auto it = parts.begin();
         std::string_view type_name{*it};
         rtrim(type_name);
-        std::println(file, "auto visit_{}_{}({} {})", type_name, base_name, type_name,
-                     lower(base_name));
+        std::println(file, "virtual T visit_{}_{}({} {}) const = 0;", type_name, base_name,
+                     type_name, lower(base_name));
     }
     std::println(file, "}};");
 }
@@ -49,14 +49,14 @@ void define_type(std::ofstream &file, std::string_view base_name, std::string_vi
     std::println(file, "  public:");
     std::println(file, "    {}({});", cls_name, fields);
     std::println(file, "  private:");
-    for (const auto &f : std::views::split(fields, ', ')) {
+    for (const auto &f : std::views::split(fields, ", ")) {
         std::println(file, "    {}", f);
     }
     std::println(file, "}};");
 }
 
-void define_ast(std::string_view output_dir, std::string_view base_name,
-                const std::vector<std::string_view> &types) {
+void define_ast(std::string_view output_dir, const std::vector<std::string_view> &types,
+                std::string_view base_name) {
 
     auto p_out_dir = std::filesystem::path{output_dir};
     if (!std::filesystem::is_directory(p_out_dir)) {
@@ -71,11 +71,12 @@ void define_ast(std::string_view output_dir, std::string_view base_name,
     }
 
     // Visitor class
-    // define_visitor();
+    define_visitor(file, base_name, types);
 
     // Base class
     std::println(file, "class {} {{", base_name);
-    std::println(file, "  virtual void something () const = 0;", base_name);
+    std::println(file, "  template <typename T> virtual accept(Visitor<T> visitor) const = 0;",
+                 base_name);
     std::println(file, "}};");
 
     // AST classes
@@ -85,5 +86,8 @@ void define_ast(std::string_view output_dir, std::string_view base_name,
         std::string_view cls_name{*it};
         std::string_view fields{*++it};
         define_type(file, base_name, cls_name, fields);
+        std::println(file, "  template <typename T> accept(Visitor<T> visitor) override {{");
+        std::println(file, "    visitor.visit_{}_{}(this);", cls_name, base_name);
+        std::println(file, "  }}");
     }
 }
