@@ -1,5 +1,6 @@
 #include "types.hpp"
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <print>
 #include <ranges>
@@ -15,11 +16,21 @@
 //     std::string_view source_;
 // };
 
-void define_visitor(std::ofstream &file, std::string_view base_name, std::string_view cls_name,
-                    std::string_view fields) {
+auto rtrim(std::string_view &s) -> void {
+    s.remove_prefix(std::min(s.find_first_not_of(' '), s.size()));
+}
 
-    // TODO: Templates?
-    std::println(file, "class Visitor<T> {{");
+void define_visitor(std::ofstream &file, std::string_view base_name, std::string_view cls_name,
+                    const std::vector<std::string_view> &types) {
+    std::println(file, "template <typename T> class Visitor {{");
+    for (const auto &t : types) {
+        auto parts = std::views::split(t, ':');
+        auto it = parts.begin();
+        std::string_view type_name{*it};
+        rtrim(type_name);
+        std::println(file, "auto visit_{}_{}({})", type_name, base_name, type_name);
+    }
+    std::println(file, "}};");
 }
 
 void define_type(std::ofstream &file, std::string_view base_name, std::string_view cls_name,
