@@ -17,27 +17,37 @@
 //     std::string_view source_;
 // };
 
-auto rtrim(std::string_view &s) -> void {
-    s.remove_prefix(std::min(s.find_first_not_of(' '), s.size()));
+auto rtrim(std::string_view &s) -> std::string_view {
+    if (!s.contains(' ')) {
+        return s;
+    }
+    s.remove_suffix(s.size() - s.find_first_of(' '));
+    return s;
 }
 
-auto lower(std::string_view sv) -> std::string {
+auto lower(std::string_view &sv) -> std::string {
     return sv | std::views::transform([](unsigned char c) {
                return static_cast<char>(std::tolower(c));
            }) |
            std::ranges::to<std::string>();
 }
 
+auto format(std::string_view type_name) -> std::string {
+    type_name = rtrim(type_name);
+    return lower(type_name);
+}
+
 void define_visitor(std::ofstream &file, std::string_view base_name,
                     const std::vector<std::string_view> &types) {
-    std::println(file, "template <typename T> class Visitor {{");
+    std::println(file, "class Visitor {{");
     for (const auto &t : types) {
         auto parts = std::views::split(t, ':');
         auto it = parts.begin();
         std::string_view type_name{*it};
-        rtrim(type_name);
-        std::println(file, "virtual T visit_{}_{}({} {}) const = 0;", type_name, base_name,
-                     type_name, lower(base_name));
+        std::println("{}", type_name);
+
+        std::println(file, "virtual T visit_{}_{}({} {}) const = 0;", format(type_name),
+                     format(base_name), rtrim(type_name), format(base_name));
     }
     std::println(file, "}};");
 }
@@ -70,8 +80,8 @@ void define_ast(std::string_view output_dir, const std::vector<std::string_view>
         return; // FIXME: should be handled with an ExitCode
     }
 
-    // Visitor class
-    define_visitor(file, base_name, types);
+    // Declare Visitor class
+    std::println(file, "template <typename T> class Visitor{{}};");
 
     // Base class
     std::println(file, "class {} {{", base_name);
@@ -90,4 +100,7 @@ void define_ast(std::string_view output_dir, const std::vector<std::string_view>
         std::println(file, "    visitor.visit_{}_{}(this);", cls_name, base_name);
         std::println(file, "  }}");
     }
+
+    // Visitor class
+    define_visitor(file, base_name, types);
 }
