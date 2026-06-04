@@ -4,12 +4,13 @@
 #include <fstream>
 #include <print>
 #include <ranges>
+#include <string>
 #include <string_view>
 #include <vector>
 
 // class Scanner {
 //   public:
-//     Scanner(std::string_view src);
+//     Scanner();
 //     std::vector<Token> scan_tokens();
 //
 //   private:
@@ -20,6 +21,13 @@ auto rtrim(std::string_view &s) -> void {
     s.remove_prefix(std::min(s.find_first_not_of(' '), s.size()));
 }
 
+auto lower(std::string_view sv) -> std::string {
+    return sv | std::views::transform([](unsigned char c) {
+               return static_cast<char>(std::tolower(c));
+           }) |
+           std::ranges::to<std::string>();
+}
+
 void define_visitor(std::ofstream &file, std::string_view base_name, std::string_view cls_name,
                     const std::vector<std::string_view> &types) {
     std::println(file, "template <typename T> class Visitor {{");
@@ -28,7 +36,8 @@ void define_visitor(std::ofstream &file, std::string_view base_name, std::string
         auto it = parts.begin();
         std::string_view type_name{*it};
         rtrim(type_name);
-        std::println(file, "auto visit_{}_{}({})", type_name, base_name, type_name);
+        std::println(file, "auto visit_{}_{}({} {})", type_name, base_name, type_name,
+                     lower(base_name));
     }
     std::println(file, "}};");
 }
